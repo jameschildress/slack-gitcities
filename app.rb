@@ -26,7 +26,6 @@ class App
   def success gif_url
     json_response({
       response_type: 'in_channel',
-      text: gif_url,
       attachments: [{
         fallback: gif_url,
         image_url: gif_url
