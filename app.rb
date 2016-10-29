@@ -3,11 +3,14 @@ require 'json'
 
 class App
 
+  class InvalidSlackToken < StandardError; end
+
   API = GifCities::API.new
 
   def call env
-    search_text = Rack::Request.new(env).params['text']
-    success API.fetch_random(search_text)
+    params = Rack::Request.new(env).params
+    slack_guard params['token']
+    success API.fetch_random(params['text'])
   rescue GifCities::QueryRequired
     error 'A search term is required.'
   rescue GifCities::NoResults
@@ -35,6 +38,10 @@ class App
 
   def json_response hash
     ['200', {'Content-Type' => 'application/json'}, [hash.to_json]]
+  end
+
+  def slack_guard token
+    raise InvalidSlackToken if token != ENV['SLACK_TOKEN']
   end
 
 end
